@@ -15,16 +15,21 @@ This project is a robotic bartender. This repository contains the arduino code t
 # photos
 
 Application interface developed
+
 <img width="200" alt="screen beginning" src="photos/screen.png">
 
 frame built and wired up
+
 <img width="200" alt="frame built and wired up" src="photos/framepouring.png">
 
 frame stained and added casing + metal background
-<img width="200" alt="frame finished" src="photos/completedframe.png">
+
+<img width="200" alt="frame finished" src="photos/completedframe.jpeg">
 
 bottles and tubing added to the frame
-<img width="200" alt="bottles and tubing added" src="photos/framewithbottles.png">
+
+<img width="200" alt="bottles and tubing added" src="photos/framewithbottles.jpeg">
 
 lights programmed and added
+
 <img width="200" alt="bottles & tubes added" src="photos/bottleswithlights.png">
