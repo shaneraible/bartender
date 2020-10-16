@@ -20,6 +20,7 @@ int lime_base = 1000, cranberry_base = 1000, ginger_base = 1000, pineapple_base 
 int vodka_rate=1000, rum_rate=1000, whiskey_rate = 1000, vermouth_rate = 1000;
 int lime_rate = 1000, cranberry_rate = 1000, ginger_rate = 1000, pineapple_rate = 1000, coke_rate = 1000;
 
+CRGB background = CRGB::Navy;
 IRrecv remote(IRPin);
 decode_results selection;
 LiquidCrystal lcd(2,3,4,5,6,7);
@@ -35,6 +36,11 @@ void setup(){
   pinMode(lime, OUTPUT);
   pinMode(cranberry, OUTPUT);
   pinMode(ginger, OUTPUT);
+  pinMode(pineapple, OUTPUT);
+  pinMode(coke, OUTPUT);`
+  pinMode(whiskey, OUTPUT);
+  pinMode(vermouth, OUTPUT);
+  pinMode(rum, OUTPUT);
   currentDrink = 0;
   lcd.begin(16,2);
   lcd.setCursor(2,0);
@@ -45,7 +51,7 @@ void setup(){
 
   FastLED.addLeds<WS2811, LED_PIN, GRB>(leds, NUM_LEDS);
   FastLED.setBrightness (20);
-  fill_solid(leds, NUM_LEDS, CRGB::Green);
+  fill_solid(leds, NUM_LEDS, background);
   FastLED.show();
   delay(30);
   FastLED.setBrightness (255);
@@ -55,62 +61,44 @@ void setup(){
 void loop(){
   if (remote.decode(&selection)){
     int pressed = translateIR(); 
-    
-    if(pressed!=-1){
-      if(pressed%10==pressed)
-        dispenseDrink(pressed);
-      else{
-        if(pressed==11) //code to dispense displayed drink
-          dispenseDrink(currentDrink);
-        else{
-          lcd.clear();
-          lcd.setCursor(2,0);
-          lcd.print("Select Drink");          
-          lcd.setCursor(0,1);
-          
-          if(pressed==10){
-            currentDrink = (--currentDrink+10)%10;
-            lcd.print(drinks[currentDrink]);
-          }
-          else if(pressed==12)
-            currentDrink = (++currentDrink)%10;
-            lcd.print(drinks[currentDrink]);
-        }
-        
-      }
-    }
+    handleIR(pressed);
+  }   
+}
 
-    remote.resume();
+void checkIR(){
+  if (remote.decode(&selection)){
+    int pressed = translateIR(); 
+    handleIR(pressed);
   }  
 }
-void setPixel(int Pixel, byte red, byte green, byte blue) {
- #ifdef ADAFRUIT_NEOPIXEL_H 
-   // NeoPixel
-   strip.setPixelColor(Pixel, strip.Color(red, green, blue));
- #endif
- #ifndef ADAFRUIT_NEOPIXEL_H 
-   // FastLED
-   leds[Pixel].r = red;
-   leds[Pixel].g = green;
-   leds[Pixel].b = blue;
- #endif
-}
-void setAll(byte red, byte green, byte blue) {
-  for(int i = 0; i < NUM_LEDS; i++ ) {
-    setPixel(i, red, green, blue); 
+void handleIR(int pressed){
+  if(pressed!=-1){
+    if(pressed%10==pressed){
+      dispenseDrink(pressed);
+    }
+    else{
+      if(pressed==11) { //if drink is selected
+        dispenseDrink(currentDrink);
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(2,0);
+        lcd.print("Select Drink");          
+        lcd.setCursor(0,1);
+        
+        if(pressed==10){
+          currentDrink = (--currentDrink+10)%10;
+          lcd.print(drinks[currentDrink]);
+        }
+        else if(pressed==12)
+          currentDrink = (++currentDrink)%10;
+          lcd.print(drinks[currentDrink]);
+      }
+    }
   }
-  showStrip();
+  remote.resume();
 }
-void showStrip() {
- #ifdef ADAFRUIT_NEOPIXEL_H 
-   // NeoPixel
-   strip.show();
- #endif
- #ifndef ADAFRUIT_NEOPIXEL_H
-   // FastLED
-   FastLED.show();
- #endif
-}
+
 int translateIR() //returns the selection pin # 
 {
   switch(selection.value)
@@ -138,11 +126,9 @@ int translateIR() //returns the selection pin #
     case 0xFF4AB5: return 8;
     case 0xFF52AD: return 9;
     //case 0xFFFFFFFF: Serial.println(" REPEAT");break;  
-
   }
 
   return -1;
-
 }
 
 void dispense(int drink, double size, double rate, double base){
@@ -172,29 +158,34 @@ void fadeInRange(int start, int fin, CRGB curr, CRGB color){
 }
 
 void dispenseDrink(int drink){
+  Serial.println("dispensing!");
   lcd.clear();
   if(drink ==0){  //moscow mule
     lcd.setCursor(2,0);
     lcd.print("Moscow Mule");
-
-    fadeInRange(0, 4, CRGB::Green, CRGB::Cyan);
+    CRGB base = CRGB::Orange;
+    CRGB high = CRGB::Red;
+    
+    explodeLED(base);
+    fadeInRange(0, 4, base, high);
     lcd.setCursor(0,1);
     lcd.print("Pouring vodka    ");
     dispense(vodka, 2, vodka_rate, vodka_base);
-    fadeInRange(0, 4, CRGB::Cyan, CRGB::Green);
+    fadeInRange(0, 4, high, base);
 
-    fadeInRange(4, 8, CRGB::Green, CRGB::Cyan);
+    fadeInRange(4, 8, base, high);
     lcd.setCursor(0,1);
     lcd.print("Pouring lime    ");
     dispense(lime, .75, lime_rate, lime_base);
-    fadeInRange(4, 8, CRGB::Cyan, CRGB::Green);
+    fadeInRange(4, 8, high, base);
 
-    fadeInRange(19, 24, CRGB::Green, CRGB::Cyan);
+    fadeInRange(19, 24, base, high);
     lcd.setCursor(0,1);
     lcd.print("disp. gingerbeer");
     dispense(ginger, 4, ginger_rate, ginger_base);
-    fadeInRange(19, 24, CRGB::Cyan, CRGB::Green);
-    
+    fadeInRange(19, 24, high, base);
+
+    explodeLED(background);
   }else if(drink == 1){ //vodka cranberry
     lcd.setCursor(3,0);
     lcd.print("Vodka Cran");
@@ -286,18 +277,19 @@ void dispenseDrink(int drink){
   lcd.clear();
   lcd.print("     Enjoy!");
   delay(3500);
-  setup();
 }
 
-
-void lightDrink(){
+void doneLED(){
   
 }
 
-void turnOnDrinkLight(int drink){
-  
-}
-
-void turnOffDrinkLight(int drink){
-  
+void explodeLED(CRGB col){
+  for(int i=NUM_LEDS/2, k=NUM_LEDS/2+NUM_LEDS%2; i<NUM_LEDS || k>=0; i++, k--){
+    if(i<NUM_LEDS)
+      leds[i] = col;
+    if(k>=0)
+      leds[k] = col;
+    FastLED.show();
+    delay(8);
+  }
 }
