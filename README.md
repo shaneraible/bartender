@@ -8,6 +8,8 @@ This project is a robotic bartender. This repository contains the arduino code t
 - Controlling motors with arduino
 - prototyping
 
+# demo
+![IoT Status Light Demo](status\ light.gif)
 # In progress:
 - time the dispensing
 - make lighting more attractive
