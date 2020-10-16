@@ -9,7 +9,7 @@ This project is a robotic bartender. This repository contains the arduino code t
 - prototyping
 
 # demo
-![IoT Status Light Demo](status\ light.gif)
+![IoT Status Light Demo](/statuslight.gif)
 # In progress:
 - time the dispensing
 - make lighting more attractive
